@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func singleTrans(input rune) (output rune) {
@@ -25,22 +26,38 @@ func singleTrans(input rune) (output rune) {
 }
 
 func number2kanji(numStr string) (kanji string, err error) {
-	kanji = numStr
+	num, err := strconv.ParseInt(numStr, 10, 64)
+	if err != nil { return }
 	if len(numStr) > 16 {
 		err = errors.New("number2kanji: parsing \"" + numStr + "\": value out of range")
 	}
 
+	numStr = fmt.Sprintf("%016d", num)
+
 	var runes []rune
 	littleUnits := []rune{'千', '_', '拾', '百'}
-	indexLittleUnits := len(numStr) % 4
-	//bigUnits := []rune{'万', '億', '兆'}
+	indexLittleUnits := 0
+	bigUnits := []rune{'_', '万', '億', '兆'}
+	indexBigUnits := len(bigUnits) - 1
+	zeroFlag := true
 	for _, c := range numStr {
-		if indexLittleUnits == 1 {
-			runes = append(runes, singleTrans(c))
-		} else {
-			runes = append(runes, singleTrans(c), littleUnits[indexLittleUnits])
+		if c != '0' {
+			zeroFlag = false
+			if indexLittleUnits == 1 {
+				runes = append(runes, singleTrans(c))
+			} else {
+				runes = append(runes, singleTrans(c), littleUnits[indexLittleUnits])
+			}
 		}
-		if indexLittleUnits == 0 { indexLittleUnits = 3
+
+		if indexLittleUnits == 1 {
+			if indexBigUnits != 0 && !zeroFlag { runes = append(runes, bigUnits[indexBigUnits]) }
+			zeroFlag = true
+			indexBigUnits--
+		}
+
+		if indexLittleUnits == 0 {
+			indexLittleUnits = 3
 		} else { indexLittleUnits-- }
 	}
 
