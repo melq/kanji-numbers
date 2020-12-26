@@ -9,6 +9,7 @@ import (
 	"strconv"
 )
 
+/*数字一文字を漢数字に変換する関数*/
 func singleTrans(input rune) (output rune) {
 	switch input {
 	case '0': output = '零'
@@ -25,43 +26,47 @@ func singleTrans(input rune) (output rune) {
 	return
 }
 
+/*数字の文字列を漢数字の文字列に変換する関数*/
 func number2kanji(numStr string) (kanji string, err error) {
-	num, err := strconv.ParseInt(numStr, 10, 64)
-	if err != nil { return }
+	if numStr == "0" {
+		kanji = string(singleTrans('0'))
+		return
+	}
 	if len(numStr) > 16 {
 		err = errors.New("number2kanji: parsing \"" + numStr + "\": value out of range")
 	}
 
-	numStr = fmt.Sprintf("%016d", num)
+	num, err := strconv.ParseInt(numStr, 10, 64)
+	if err != nil { return }
+	numStr = fmt.Sprintf("%016d", num) //入力文字列を0で埋める
 
-	var runes []rune
-	littleUnits := []rune{'千', '_', '拾', '百'}
+	var runes []rune //文字列を一旦格納するためにスライス
+	littleUnits := [3]rune{'千', '百', '拾'}
 	indexLittleUnits := 0
-	bigUnits := []rune{'_', '万', '億', '兆'}
-	indexBigUnits := len(bigUnits) - 1
-	zeroFlag := true
-	for _, c := range numStr {
-		if c != '0' {
+	bigUnits := [4]rune{'兆', '億', '万', '_'} //'_'はダミー(兆より大きい単位の実装を用意にするため)
+	indexBigUnits := 0
+	zeroFlag := true //0000万のようにならないようにするため利用するフラグ
+	for i, c := range numStr {
+		if c != '0' { //"零千"のようにしないため
 			zeroFlag = false
-			if indexLittleUnits == 1 {
+			if indexLittleUnits == 3 { //千、百、拾がつかない桁なら
 				runes = append(runes, singleTrans(c))
 			} else {
-				runes = append(runes, singleTrans(c), littleUnits[indexLittleUnits])
+				runes = append(runes, singleTrans(c), littleUnits[indexLittleUnits]) //千、百、拾をつける
 			}
 		}
+		if indexLittleUnits == 3 {	  //千、百、拾の配列が一周したら
+			indexLittleUnits = 0	  //千に戻す
+		} else { indexLittleUnits++ } //それ以外は次の単位に進める
 
-		if indexLittleUnits == 1 {
-			if indexBigUnits != 0 && !zeroFlag { runes = append(runes, bigUnits[indexBigUnits]) }
+		if i % 4 == 3 {	//兆、億、万をつけるタイミングなら
+			if indexBigUnits != 3 && !zeroFlag { runes = append(runes, bigUnits[indexBigUnits]) } //兆、億、万をつける
 			zeroFlag = true
-			indexBigUnits--
+			indexBigUnits++
 		}
-
-		if indexLittleUnits == 0 {
-			indexLittleUnits = 3
-		} else { indexLittleUnits-- }
 	}
 
-	kanji = string(runes)
+	kanji = string(runes) //できたスライスをstringへ変換
 	return
 }
 
