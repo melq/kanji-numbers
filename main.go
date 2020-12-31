@@ -1,3 +1,5 @@
+//http通信を用いたAPI
+
 package main
 
 import (
@@ -136,7 +138,7 @@ func kanji2number(kanji string) (numStr string, err error) {
 	return
 }
 
-/* /number2kaeji/{number} のエンドポイントにリクエストがきたときの処理*/
+/* /number2kanji/{number} のエンドポイントにリクエストがきたときの処理*/
 func handleNumber2kanji(w http.ResponseWriter, r *http.Request) {
 	log.Println("handleNumber2kanji called")
 	vars := mux.Vars(r)
