@@ -1,5 +1,3 @@
-//http通信を用いたAPI
-
 package main
 
 import (
@@ -172,11 +170,19 @@ func handleKanji2number(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+	log.Println("handleRoot called")
+	if _, err := fmt.Fprint(w, "welcome kanjinumbers.com!"); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/v1/number2kanji/{number}", handleNumber2kanji).Methods("GET")
 	router.HandleFunc("/v1/kanji2number/{kanji}", handleKanji2number).Methods("GET")
+	router.HandleFunc("/", handleRoot)
 
 	log.Println("Listen Server ...")
 	log.Fatal(http.ListenAndServe(":8000", router))
