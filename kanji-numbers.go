@@ -175,7 +175,7 @@ func handleKanji2number(w http.ResponseWriter, r *http.Request) {
 func handleRoot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	log.Println("handleRoot called")
-	if _, err := fmt.Fprint(w, "welcome kanjinumbers.com!"); err != nil {
+	if _, err := fmt.Fprint(w, "welcome to kanjinumbers.com!"); err != nil {
 		log.Fatal(err)
 	}
 }
