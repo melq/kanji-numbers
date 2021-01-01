@@ -138,6 +138,7 @@ func kanji2number(kanji string) (numStr string, err error) {
 
 /* /number2kanji/{number} のエンドポイントにリクエストがきたときの処理*/
 func handleNumber2kanji(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	log.Println("handleNumber2kanji called")
 	vars := mux.Vars(r)
 	kanji, err := number2kanji(vars["number"])
@@ -155,6 +156,7 @@ func handleNumber2kanji(w http.ResponseWriter, r *http.Request) {
 
 /* /kanji2number/{kanji} のエンドポイントにリクエストがきたときの処理*/
 func handleKanji2number(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	log.Println("handleKanji2number called")
 	vars := mux.Vars(r)
 	numStr, err := kanji2number(vars["kanji"])
@@ -171,6 +173,7 @@ func handleKanji2number(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRoot(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	log.Println("handleRoot called")
 	if _, err := fmt.Fprint(w, "welcome kanjinumbers.com!"); err != nil {
 		log.Fatal(err)
